@@ -47,8 +47,8 @@ const corsOptions = {
 // Apply CORS globally
 app.use(cors(corsOptions));
 
-// Explicitly intercept browser Preflight OPTIONS requests and respond with 200 OK instantly
-app.options('*', cors(corsOptions));
+/// ✅ TO THIS (Regex format for Express 5 compatibility):
+app.options(/\.*/, cors(corsOptions));
 
 
 // ==========================================
