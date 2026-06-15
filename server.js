@@ -19,7 +19,11 @@ app.set('trust proxy', 1);
 // 🚨 1. CORS MUST BE FIRST 🚨
 // 🔓 UNIVERSAL CORS POLICY
 app.use(cors({
-    origin: ['https://jengabet.co.ke','api.jengabet.co.ke' 'https://www.jengabet.co.ke'],
+    origin: [
+        'https://jengabet.co.ke',
+        'https://api.jengabet.co.ke', 
+        'https://www.jengabet.co.ke'
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
