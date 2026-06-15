@@ -19,7 +19,7 @@ app.set('trust proxy', 1);
 // 🚨 1. CORS MUST BE FIRST 🚨
 // 🔓 UNIVERSAL CORS POLICY
 app.use(cors({
-    origin: ['https://jengabet.co.ke', 'https://www.jengabet.co.ke'],
+    origin: ['https://jengabet.co.ke','api.jengabet.co.ke' 'https://www.jengabet.co.ke'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
@@ -951,5 +951,5 @@ setInterval(async () => {
     } catch (err) {}
 }, 60000);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3038;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
