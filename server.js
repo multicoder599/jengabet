@@ -14,42 +14,67 @@ const mongoSanitize = require('express-mongo-sanitize');
 
 const app = express();
 
+// Required if your app is running behind Nginx reverse proxy for rate-limiting accuracy
 app.set('trust proxy', 1);
 
-// 🚨 1. CORS MUST BE FIRST 🚨
-// 🔓 UNIVERSAL CORS POLICY
-app.use(cors({
-    origin: [
-        'https://jengabet.co.ke',
-        'https://api.jengabet.co.ke', 
-        'https://www.jengabet.co.ke'
-    ],
+// ==========================================
+// 🚨 1. CORS CONFIGURATION (MUST BE FIRST) 🚨
+// ==========================================
+
+const allowedOrigins = [
+    'https://jengabet.co.ke',
+    'https://www.jengabet.co.ke',
+    'https://api.jengabet.co.ke',
+    'https://admin.jengabet.co.ke'
+];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, or postman)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// Apply CORS globally
+app.use(cors(corsOptions));
+
+// Explicitly intercept browser Preflight OPTIONS requests and respond with 200 OK instantly
+app.options('*', cors(corsOptions));
+
+
+// ==========================================
+// 🚨 2. SECURITY MIDDLEWARE & PARSERS 🚨
+// ==========================================
+
+// Configured Helmet to allow Cross-Origin Resource Sharing so it won't drop requests in the browser
+app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
-// 🚨 2. Security and Parsers go NEXT 🚨
-app.use(helmet());
 app.use(express.json());
 
+// Query property deep-freeze patch
 app.use((req, res, next) => {
     Object.defineProperty(req, 'query', {
         value: { ...req.query },
-        writable: true, configurable: true, enumerable: true
+        writable: true, 
+        configurable: true, 
+        enumerable: true
     });
     next();
 });
 
+// Sanitize data against NoSQL injection attacks
 app.use(mongoSanitize());
-
-// 🔓 UNIVERSAL CORS POLICY
-app.use(cors({
-    origin: ['https://jengabet.co.ke', 'https://www.jengabet.co.ke', 'https://admin.jengabet.co.ke'],
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        credentials: true,
-        allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 const apiLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, max: 200,
